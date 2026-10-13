@@ -22,6 +22,8 @@ def load_data(file_path="data/AirQualityUCI.csv"):
     try:
         # Load data with semicolon separator
         df = pd.read_csv(file_path, sep=';')
+        # -200 means the sensor had no reading, so treat it as missing
+        df = df.replace([-200, '-200'], np.nan)
         
         # Remove empty columns (the dataset has trailing semicolons)
         df = df.dropna(axis=1, how='all')
@@ -76,10 +78,11 @@ def clean_data(df):
     
     for col in numeric_columns:
         if col in df_clean.columns:
-            # Replace comma with dot for decimal separator
+                      # Replace comma with dot for decimal separator
             df_clean[col] = df_clean[col].astype(str).str.replace(',', '.')
             df_clean[col] = pd.to_numeric(df_clean[col], errors='coerce')
-    
+            # -200 means the sensor had no reading, so make it missing
+            df_clean[col] = df_clean[col].replace(-200, np.nan)
     return df_clean
 
 
